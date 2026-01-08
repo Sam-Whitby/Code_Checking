@@ -1,0 +1,98 @@
+import sympy as sp
+import random
+import numpy as np
+def are_symbolically_equivalent(expr1, expr2, symbols, *,
+                                numeric_fallback=True,
+                                num_tests=10,
+                                tol=1e-10):
+    """
+    Check whether two analytic expressions are symbolically equivalent.
+
+    Parameters
+    ----------
+    expr1, expr2 : sympy expressions
+        The expressions to compare.
+    symbols : list of sympy.Symbol
+        Variables appearing in the expressions.
+    numeric_fallback : bool
+        If True, perform numerical testing if symbolic check is inconclusive.
+    num_tests : int
+        Number of random numerical tests.
+    tol : float
+        Numerical tolerance.
+
+    Returns
+    -------
+    bool
+        True if equivalent, False if not equivalent.
+    """
+
+    # 1. Try exact symbolic simplification
+    diff = sp.simplify(expr1 - expr2)
+    
+    if diff == 0:
+        return True
+
+    # 2. Try stronger algebraic checks
+    diff = sp.together(diff)
+    diff = sp.cancel(diff)
+    diff = sp.simplify(diff)
+
+    if diff == 0:
+        return True
+    #print("Numeric Fallback")
+    # 3. Optional numeric fallback (probabilistic)
+    if numeric_fallback:
+        return(False)
+        f = sp.lambdify(symbols, diff, "numpy")
+
+        for _ in range(num_tests):
+            subs = []
+            for _ in symbols:
+                # avoid singularities
+                subs.append(random.uniform(0.5, 2.0))
+
+            try:
+                val = f(*subs)
+            except Exception:
+                continue
+
+            if abs(val) > tol:
+                return False
+
+        # Probably equivalent
+        return True
+
+    # Symbolic check failed and no numeric fallback
+    return False
+
+
+# ------------------ Example usage ------------------
+
+if __name__ == "__main__":
+    x, y = sp.symbols('x y',real=True)
+
+    expr1 = sp.sin(x)**2 + sp.cos(x)**2
+    expr2 = 1
+
+    print(are_symbolically_equivalent(expr1, expr2, [x]))  # True
+
+    expr3 = (x**2 - y**2) / (x - y)
+    expr4 = x + y
+
+    print(are_symbolically_equivalent(expr3, expr4, [x, y]))  # True
+
+    expr5 = sp.exp(x + y)
+    expr6 = sp.exp(x) * sp.exp(y)
+
+    print(are_symbolically_equivalent(expr5, expr6, [x, y]))  # True
+
+    expr7 = sp.sqrt(x**2)
+    expr8 = sp.Abs(x)
+
+    print(are_symbolically_equivalent(expr7, expr8, [x]))  # True
+    
+    expr9 = x**2 + sp.sin(x)/sp.cos(x)
+    expr10 = x**2 + sp.tan(x)
+
+    print("9,10",are_symbolically_equivalent(expr9, expr10, [x]))  # True
