@@ -59,7 +59,10 @@ if __name__ == "__main__":
 
     print(are_symbolically_equivalent(expr7, expr8, [x]))  # True
     
-    expr9 = 1E-15 + x**2 + sp.sin(x)/sp.cos(x)
-    expr10 = 1E-15 + x**2 + sp.tan(x)
+    #expr9 = sp.exp(2)*sp.exp(3)
+    #expr10 = sp.exp(3)*sp.exp(2)
+    
+    expr9 = sp.Piecewise((1E-20*sp.exp(x), x*y > 2), (sp.exp(y), x*y <= 2))
+    expr10 = sp.Piecewise((1E-20*sp.exp(x), x*y > 2), (sp.exp(y), x*y <= 2))
 
-    print("9,10",are_symbolically_equivalent(expr9, expr10, [x]))  # True
+    print("Piecewise with exponentials, like VMMC: ",are_symbolically_equivalent(expr9, expr10, [x]))  # True
