@@ -31,7 +31,7 @@ def are_symbolically_equivalent(expr1, expr2, symbols):
 
     if diff == 0:
         return True
-    
+    return False
 
 
 # ------------------ Example usage ------------------
@@ -59,7 +59,7 @@ if __name__ == "__main__":
 
     print(are_symbolically_equivalent(expr7, expr8, [x]))  # True
     
-    expr9 = x**2 + sp.sin(x)/sp.cos(x)
-    expr10 = x**2 + sp.tan(x)
+    expr9 = 1E-15 + x**2 + sp.sin(x)/sp.cos(x)
+    expr10 = 1E-15 + x**2 + sp.tan(x)
 
     print("9,10",are_symbolically_equivalent(expr9, expr10, [x]))  # True
