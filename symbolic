@@ -1,10 +1,7 @@
 import sympy as sp
 import random
 import numpy as np
-def are_symbolically_equivalent(expr1, expr2, symbols, *,
-                                numeric_fallback=True,
-                                num_tests=10,
-                                tol=1e-10):
+def are_symbolically_equivalent(expr1, expr2, symbols):
     """
     Check whether two analytic expressions are symbolically equivalent.
 
@@ -14,12 +11,6 @@ def are_symbolically_equivalent(expr1, expr2, symbols, *,
         The expressions to compare.
     symbols : list of sympy.Symbol
         Variables appearing in the expressions.
-    numeric_fallback : bool
-        If True, perform numerical testing if symbolic check is inconclusive.
-    num_tests : int
-        Number of random numerical tests.
-    tol : float
-        Numerical tolerance.
 
     Returns
     -------
@@ -40,31 +31,7 @@ def are_symbolically_equivalent(expr1, expr2, symbols, *,
 
     if diff == 0:
         return True
-    #print("Numeric Fallback")
-    # 3. Optional numeric fallback (probabilistic)
-    if numeric_fallback:
-        return(False)
-        f = sp.lambdify(symbols, diff, "numpy")
-
-        for _ in range(num_tests):
-            subs = []
-            for _ in symbols:
-                # avoid singularities
-                subs.append(random.uniform(0.5, 2.0))
-
-            try:
-                val = f(*subs)
-            except Exception:
-                continue
-
-            if abs(val) > tol:
-                return False
-
-        # Probably equivalent
-        return True
-
-    # Symbolic check failed and no numeric fallback
-    return False
+    
 
 
 # ------------------ Example usage ------------------
